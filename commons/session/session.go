@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+	"zen/commons/basepath"
 	"zen/commons/sqlite"
 )
 
@@ -46,7 +47,7 @@ func NewSession(userID string) (SessionRecord, error) {
 }
 
 func SetSessionCookie(w http.ResponseWriter, session SessionRecord) {
-	cookies := http.Cookie{Name: "session_token", Value: session.SessionID, Expires: session.ExpiresAt, Path: "/"}
+	cookies := http.Cookie{Name: "session_token", Value: session.SessionID, Expires: session.ExpiresAt, Path: basepath.CookiePath()}
 	http.SetCookie(w, &cookies)
 }
 

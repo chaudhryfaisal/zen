@@ -4,6 +4,7 @@ import { SearchIcon } from "../../commons/components/Icon.jsx";
 import Button from "../../commons/components/Button.jsx";
 import NotesEditorTags from "../tags/NotesEditorTags.jsx";
 import "./CanvasNotePicker.css";
+import { withBasePath } from '../../commons/utils/basePath.js';
 
 export default function CanvasNotePicker({ onAddNote, addedItems }) {
   const [query, setQuery] = useState("");
@@ -252,7 +253,7 @@ function NoteCard({ note, onClick }) {
 function ImageCard({ image, onClick }) {
   return (
     <img
-      src={`/images/${image.filename}`}
+      src={withBasePath(`/images/${image.filename}`)}
       className="canvas-image-card-grid"
       onClick={onClick}
       loading="lazy"

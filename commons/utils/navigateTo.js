@@ -1,3 +1,5 @@
+import { withBasePath } from "./basePath.js";
+
 export default function navigateTo(path, shouldPreserveSearchParams, shouldReplace) {
   if (shouldPreserveSearchParams) {
     const currentUrl = new URL(window.location.href);
@@ -12,9 +14,9 @@ export default function navigateTo(path, shouldPreserveSearchParams, shouldRepla
   }
 
   if (shouldReplace) {
-    window.history.replaceState({}, "", path);
+    window.history.replaceState({}, "", withBasePath(path));
   } else {
-    window.history.pushState({}, "", path);
+    window.history.pushState({}, "", withBasePath(path));
   }
   window.dispatchEvent(new PopStateEvent("navigate"));
 }

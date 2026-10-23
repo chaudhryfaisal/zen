@@ -1,5 +1,6 @@
 import mark from "../../assets/markdown-it-mark.mjs";
 import tasks from "../../assets/markdown-it-task-lists.js";
+import { withBasePath } from "./basePath.js";
 
 const COPY_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy code-copy-icon"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
 
@@ -33,7 +34,14 @@ export default function renderMarkdown(text, { hasCodeCopyButton = false, hasCli
     } else {
       tokens[idx].attrSet('target', '_blank');
     }
+    tokens[idx].attrSet('href', withBasePath(href));
     return defaultRender(tokens, idx, options, env, self);
+  };
+
+  const defaultImageRender = md.renderer.rules.image;
+  md.renderer.rules.image = function (tokens, idx, options, env, self) {
+    tokens[idx].attrSet('src', withBasePath(tokens[idx].attrGet('src') || ''));
+    return defaultImageRender(tokens, idx, options, env, self);
   };
 
   // A table can't scroll on its own without squeezing its columns, so a wrapper scrolls it instead.

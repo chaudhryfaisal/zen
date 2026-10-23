@@ -1,4 +1,5 @@
 import { useEffect, useState } from '../../assets/preact.esm.js';
+import { withBasePath } from '../../commons/utils/basePath.js';
 
 export default function useKonva() {
   const [isKonvaReady, setIsKonvaReady] = useState(false);
@@ -10,7 +11,7 @@ export default function useKonva() {
     }
 
     const script = document.createElement('script');
-    script.src = '/assets/konva.min.js';
+    script.src = withBasePath('/assets/konva.min.js');
     script.onload = () => {
       setIsKonvaReady(true);
     };

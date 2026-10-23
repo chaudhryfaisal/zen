@@ -12,6 +12,7 @@ import { splitHighlights, getHighlightedSnippet } from "./highlights.js";
 import SearchSortDropdown, { SORT_OPTIONS } from "./SearchSortDropdown.jsx";
 import RecentSearchQuery from "./RecentSearchQuery.js";
 import "./SearchMenu.css";
+import { withBasePath } from '../../commons/utils/basePath.js';
 
 export default function SearchMenu() {
   const [query, setQuery] = useState(RecentSearchQuery.get());
@@ -187,7 +188,7 @@ export default function SearchMenu() {
       closeModal();
     } else if (item.filename) {
       const imageDetails = results.semanticImages.map(image => ({
-        url: `/images/${image.filename}`,
+        url: withBasePath(`/images/${image.filename}`),
         width: image.width,
         height: image.height,
         aspectRatio: image.aspectRatio,
@@ -412,7 +413,7 @@ function HighlightedText({ segments }) {
 }
 
 function SearchResultImages({ items, onClick, onMouseEnter }) {
-  const images = items.map(item => <img src={`/images/${item.filename}`} key={item.filename} alt={item.description} onClick={() => onClick(item)} onMouseEnter={() => onMouseEnter(item)} />)
+  const images = items.map(item => <img src={withBasePath(`/images/${item.filename}`)} key={item.filename} alt={item.description} onClick={() => onClick(item)} onMouseEnter={() => onMouseEnter(item)} />)
 
   return (
     <div className="search-result-images">

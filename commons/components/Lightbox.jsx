@@ -3,6 +3,7 @@ import { ModalBackdrop, ModalContainer } from "./Modal.jsx";
 import { CloseIcon, ImagesIcon, BackIcon, ExternalLinkIcon } from "./Icon.jsx";
 import ApiClient from "../http/ApiClient.js";
 import "./Lightbox.css";
+import { withBasePath } from '../utils/basePath.js';
 
 export default function Lightbox({ selectedImage, imageDetails, onClose }) {
   const [currentImage, setCurrentImage] = useState(selectedImage);
@@ -79,7 +80,7 @@ export default function Lightbox({ selectedImage, imageDetails, onClose }) {
 
   function handleSimilarImageClick(image) {
     const imageWithUrl = {
-      url: `/images/${image.filename}`,
+      url: withBasePath(`/images/${image.filename}`),
       width: image.width,
       height: image.height,
       aspectRatio: image.aspectRatio,
@@ -98,7 +99,7 @@ export default function Lightbox({ selectedImage, imageDetails, onClose }) {
     const gridImages = similarImages.map((image, index) => (
       <img
         key={image.filename}
-        src={`/images/${image.filename}`}
+        src={withBasePath(`/images/${image.filename}`)}
         alt=""
         className="lightbox-similar-image has-reveal-animation"
         style={`--reveal-index: ${index + 1}`}

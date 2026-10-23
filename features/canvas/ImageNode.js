@@ -1,9 +1,11 @@
+import { withBasePath } from '../../commons/utils/basePath.js';
+
 function create(layer, item, x, y, onDragEnd, onClick, onDoubleClick, customWidth, customHeight) {
   const image = {
     id: `image-${item.filename}`,
     type: 'image',
     filename: item.filename,
-    url: `/images/${item.filename}`,
+    url: withBasePath(`/images/${item.filename}`),
     width: item.width || 300,
     height: item.height || 200,
     x,

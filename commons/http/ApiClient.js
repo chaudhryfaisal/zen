@@ -1,4 +1,5 @@
 import { showToast } from "../components/Toast.jsx";
+import { withBasePath } from "../utils/basePath.js";
 
 async function request(method, url, payload, opts) {
   const options = {
@@ -15,7 +16,7 @@ async function request(method, url, payload, opts) {
   }
 
   try {
-    const response = await fetch(url, options);
+    const response = await fetch(withBasePath(url), options);
 
     if (!response.ok) {
       throw response;
@@ -284,7 +285,7 @@ async function importFile(formData) {
 // Export
 
 async function exportNotes() {
-  const response = await fetch('/api/v1/export/', {
+  const response = await fetch(withBasePath('/api/v1/export/'), {
     method: 'GET',
     headers: {}
   });

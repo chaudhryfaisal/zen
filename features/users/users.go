@@ -9,6 +9,7 @@ import (
 	"net/mail"
 	"strings"
 	"time"
+	"zen/commons/basepath"
 	"zen/commons/session"
 	"zen/commons/utils"
 )
@@ -210,7 +211,7 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
 		Value:    "",
-		Path:     "/",
+		Path:     basepath.CookiePath(),
 		Expires:  time.Time{},
 		MaxAge:   -1,
 		HttpOnly: true,

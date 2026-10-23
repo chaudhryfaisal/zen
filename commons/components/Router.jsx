@@ -1,11 +1,12 @@
 import { h, useEffect, useState } from '../../assets/preact.esm.js';
+import { getCurrentPath } from '../utils/basePath.js';
 
 export default function Router({ children }) {
-  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const [currentPath, setCurrentPath] = useState(getCurrentPath());
 
   useEffect(() => {
     function handleLocationChange() {
-      setCurrentPath(window.location.pathname);
+      setCurrentPath(getCurrentPath());
     }
 
     window.addEventListener("navigate", handleLocationChange);

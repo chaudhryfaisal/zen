@@ -1,5 +1,6 @@
 import { h } from '../../assets/preact.esm.js';
 import navigateTo from '../utils/navigateTo.js';
+import { getCurrentPath, withBasePath } from '../utils/basePath.js';
 
 export default function Link({ to, shouldPreserveSearchParams, children, className = "", activeClassName = "" }) {
   function handleClick(event) {
@@ -8,7 +9,7 @@ export default function Link({ to, shouldPreserveSearchParams, children, classNa
     navigateTo(to, shouldPreserveSearchParams);
   }
 
-  const currentPath = window.location.pathname;
+  const currentPath = getCurrentPath();
   const currentSearchParams = new URLSearchParams(window.location.search);
 
   const linkPath = new URL(to, window.location.origin).pathname;
@@ -36,7 +37,7 @@ export default function Link({ to, shouldPreserveSearchParams, children, classNa
   }
 
   return (
-    <a href={to} onClick={handleClick} className={finalClassName}>
+    <a href={withBasePath(to)} onClick={handleClick} className={finalClassName}>
       {children}
     </a>
   );

@@ -2,7 +2,9 @@ package main
 
 import (
 	"embed"
+	"encoding/json"
 	"fmt"
+	"io"
 	"io/fs"
 	"log/slog"
 	"net/http"
@@ -12,6 +14,7 @@ import (
 	"syscall"
 	"time"
 	"zen/commons/auth"
+	"zen/commons/basepath"
 	"zen/commons/session"
 	"zen/commons/sqlite"
 	"zen/features/canvas"
@@ -75,11 +78,61 @@ func main() {
 	}
 	port = ":" + port
 
-	slog.Info("starting server", "port", port)
-	err := http.ListenAndServe(port, newRouter())
+	slog.Info("starting server", "port", port, "basePath", basepath.Get())
+	err := http.ListenAndServe(port, newHandler())
 	if err != nil {
 		panic(err)
 	}
+}
+
+func newHandler() http.Handler {
+	router := newRouter()
+	base := basepath.Get()
+	if base == "" {
+		return router
+	}
+
+	stripped := http.StripPrefix(base, router)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == base {
+			target := base + "/"
+			if r.URL.RawQuery != "" {
+				target += "?" + r.URL.RawQuery
+			}
+			http.Redirect(w, r, target, http.StatusMovedPermanently)
+			return
+		}
+		if !strings.HasPrefix(r.URL.Path, base+"/") {
+			http.NotFound(w, r)
+			return
+		}
+		stripped.ServeHTTP(w, r)
+	})
+}
+
+// Rewrites root-relative asset URLs and exposes the base path to the frontend.
+func applyBasePathToIndex(indexPage []byte) []byte {
+	base := basepath.Get()
+	encodedBase, _ := json.Marshal(base)
+	page := string(indexPage)
+	if base != "" {
+		page = strings.ReplaceAll(page, `"/assets/`, `"`+base+`/assets/`)
+		page = strings.ReplaceAll(page, `'/sw.js'`, `'`+base+`/sw.js'`)
+	}
+	page = strings.Replace(page, "<head>", "<head>\n  <script>window.ZEN_BASE_PATH = "+string(encodedBase)+";</script>", 1)
+	return []byte(page)
+}
+
+// Rewrites every quoted root-relative path ('/...' or "/...") in a static text file.
+func applyBasePathToStaticText(content []byte) []byte {
+	base := basepath.Get()
+	if base == "" {
+		return content
+	}
+	text := string(content)
+	text = strings.ReplaceAll(text, `'/`, `'`+base+`/`)
+	text = strings.ReplaceAll(text, `"/`, `"`+base+`/`)
+	return []byte(text)
 }
 
 func newRouter() *http.ServeMux {
@@ -195,7 +248,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	w.Write(indexPage)
+	w.Write(applyBasePathToIndex(indexPage))
 }
 
 func handleStaticAssets(w http.ResponseWriter, r *http.Request) {
@@ -212,6 +265,23 @@ func handleStaticAssets(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fsys = http.FS(subtree)
+	}
+
+	if basepath.Get() != "" && r.URL.Path == "/assets/site.webmanifest" {
+		manifestFile, err := fsys.Open("/site.webmanifest")
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		defer manifestFile.Close()
+		manifest, err := io.ReadAll(manifestFile)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/manifest+json")
+		w.Write(applyBasePathToStaticText(manifest))
+		return
 	}
 
 	http.StripPrefix("/assets/", http.FileServer(fsys)).ServeHTTP(w, r)
@@ -301,7 +371,7 @@ func handleServiceWorker(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/javascript")
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	w.Header().Set("Service-Worker-Allowed", "/")
+	w.Header().Set("Service-Worker-Allowed", basepath.CookiePath())
 	w.WriteHeader(http.StatusOK)
-	w.Write(swContent)
+	w.Write(applyBasePathToStaticText(swContent))
 }

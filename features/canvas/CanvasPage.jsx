@@ -20,6 +20,7 @@ import { AppProvider } from '../../commons/contexts/AppContext.jsx';
 import { NotesProvider } from '../../commons/contexts/NotesContext.jsx';
 import { openModal, closeModal } from '../../commons/components/Modal.jsx';
 import './CanvasPage.css';
+import { withBasePath } from '../../commons/utils/basePath.js';
 
 export default function CanvasPage({ canvasId }) {
   const containerRef = useRef(null);
@@ -673,7 +674,7 @@ export default function CanvasPage({ canvasId }) {
 
   function handleImageDoubleClick(imageItem) {
     const imageWithUrl = {
-      url: `/images/${imageItem.filename}`,
+      url: withBasePath(`/images/${imageItem.filename}`),
       width: imageItem.width,
       height: imageItem.height,
       aspectRatio: imageItem.aspectRatio,

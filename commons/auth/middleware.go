@@ -2,6 +2,7 @@ package auth
 
 import (
 	"net/http"
+	"zen/commons/basepath"
 	"zen/commons/session"
 	"zen/commons/utils"
 	"zen/features/users"
@@ -27,7 +28,7 @@ func EnsureAuthenticated(next http.Handler) http.HandlerFunc {
 			return
 		}
 
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		http.Redirect(w, r, basepath.With("/login"), http.StatusSeeOther)
 	}
 
 	return http.HandlerFunc(mw)
@@ -46,7 +47,7 @@ func EnsureSession(next http.Handler) http.HandlerFunc {
 			return
 		}
 
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		http.Redirect(w, r, basepath.With("/login"), http.StatusSeeOther)
 	}
 
 	return http.HandlerFunc(mw)

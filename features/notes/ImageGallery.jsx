@@ -2,6 +2,7 @@ import { h, useEffect, useRef, useState, useCallback, Fragment } from "../../ass
 import { closeModal, openModal } from "../../commons/components/Modal.jsx";
 import Lightbox from "../../commons/components/Lightbox.jsx";
 import "./ImageGallery.css";
+import { withBasePath } from '../../commons/utils/basePath.js';
 
 const MIN_COLUMN_WIDTH = 300;
 const GUTTER_WIDTH = 20;
@@ -26,7 +27,7 @@ export default function ImageGallery({ images }) {
     }
 
     const newDetails = newImages.map(image => ({
-      url: `/images/${image.filename}`,
+      url: withBasePath(`/images/${image.filename}`),
       width: image.width,
       height: image.height,
       aspectRatio: image.aspectRatio,
